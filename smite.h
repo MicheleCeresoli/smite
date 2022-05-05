@@ -280,10 +280,10 @@ void SmiteAssertEqualDoubleArray(const double* expected,
 /* SMITE macros to override the basic assert function */ 
 
 #define ASSERT_EQUAL_INT(expected, actual)                  SmiteAssertEqualInteger(expected, actual, __LINE__)
-#define ASSERT_EQUAL_INT_ARRAY(expected, actual, elements)  SmiteAssertEqualIntArray(expected, actual, elements, __LINE__)
+#define ASSERT_EQUAL_INT_ARRAY(expected, actual, elements)  SmiteAssertEqualIntArray((const int*)expected, (const int*)actual, elements, __LINE__)
 
 #define ASSERT_EQUAL_DOUBLE(expected, actual)                   SmiteAssertEqualDouble(expected, actual, __LINE__)
-#define ASSERT_EQUAL_DOUBLE_ARRAY(expected, actual, elements)   SmiteAssertEqualDoubleArray(expected, actual, elements, __LINE__)
+#define ASSERT_EQUAL_DOUBLE_ARRAY(expected, actual, elements)   SmiteAssertEqualDoubleArray((const double*)expected, (const double*)actual, elements, __LINE__)
 
 // These series of variadic macros are supported only for versions of C >= C99
 #define ADD_TEST(...) ADD_TEST_AT_LINE(__VA_ARGS__, __LINE__, __FILE__)
