@@ -61,7 +61,7 @@ int SmiteRunSession()
         SMITE_FREE_BATCH();
         return 1;
     } else {
-
+        SmitePrintSessionSuccess();
         SMITE_FREE_BATCH();
         return 0;
     }
