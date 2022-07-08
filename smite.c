@@ -56,7 +56,7 @@ int SmiteRunSession()
     }
     printf("\n");
 
-    if (SmiteSession.Fails > 0) {   
+    if (SmiteSession.Fails == 1) {   
         SmitePrintSessionFailure();
         SMITE_FREE_BATCH();
         return 1;
@@ -87,6 +87,7 @@ void SmiteAddSingleTest(SmiteTestFunction Fun,
 /* SMITE assertion functions */
 
 #define SMITE_REGISTER_ERROR(type, line) do {SmiteCurrentTest->ErrorType = type; SmiteCurrentTest->ErrorLine = line; } while (0);
+#define COMPARE_DOUBLE(a, b) (fabs(a - b) <= (SMITE_DOUBLE_ATOL + SMITE_DOUBLE_RTOL*fabs(b)))
 
 #include <string.h>
 
@@ -114,12 +115,12 @@ void SmiteAssertEqualDouble(const SMITE_DOUBLE expected,
                             const SMITE_DOUBLE actual,
                             const SMITE_UINT line)
 {
-    if (fabs(expected - actual) >= SMITE_DOUBLE_TOLERANCE)
+    if (!COMPARE_DOUBLE(actual, expected))
     {
         SMITE_REGISTER_ERROR(SMITE_EQUALITY_ASSERTION_ERROR, line);
 
         char errorDetails[100]; 
-        snprintf(errorDetails, 100, SMITE_STR_EXPECTED "%10f " SMITE_STR_WAS "%10f.", 
+        snprintf(errorDetails, 100, SMITE_STR_EXPECTED "%.10f " SMITE_STR_WAS "%.10f.", 
                 (double)expected, (double)actual);
 
         strcpy(SmiteCurrentTest->ErrorDetails, errorDetails);
@@ -127,6 +128,25 @@ void SmiteAssertEqualDouble(const SMITE_DOUBLE expected,
         TEST_FAIL_AND_ABORT();
     }
 
+}
+
+
+void SmiteAssertNotEqualDouble(const SMITE_DOUBLE expected, 
+                               const SMITE_DOUBLE actual, 
+                               const SMITE_UINT line)
+{
+    if (COMPARE_DOUBLE(actual, expected))
+    {
+        SMITE_REGISTER_ERROR(SMITE_EQUALITY_ASSERTION_ERROR, line);
+        
+        char errorDetails[100]; 
+        snprintf(errorDetails, 100,  "%.10f is not different from %.10f.", 
+                (double)actual, (double)expected);
+
+        strcpy(SmiteCurrentTest->ErrorDetails, errorDetails);
+
+        TEST_FAIL_AND_ABORT();
+    }
 }
 
 void SmiteAssertEqualIntArray(const int* expected, 
@@ -180,12 +200,12 @@ void SmiteAssertEqualDoubleArray(const double* expected,
         double expected_val = expected[i];
         double actual_val = actual[i];
 
-        if (fabs(expected_val - actual_val) >= SMITE_DOUBLE_TOLERANCE)
+        if (!COMPARE_DOUBLE(actual_val, expected_val))
         {
             SMITE_REGISTER_ERROR(SMITE_EQUALITY_ASSERTION_ERROR, line);
 
             char errorDetails[100]; 
-            snprintf(errorDetails, 100, SMITE_STR_ELEMENT "%d: " SMITE_STR_EXPECTED "%10f " SMITE_STR_WAS "%10f.", 
+            snprintf(errorDetails, 100, SMITE_STR_ELEMENT "%d: " SMITE_STR_EXPECTED "%.10f " SMITE_STR_WAS "%.10f.", 
                     i, expected_val, actual_val);
 
             strcpy(SmiteCurrentTest->ErrorDetails, errorDetails);
@@ -196,8 +216,51 @@ void SmiteAssertEqualDoubleArray(const double* expected,
 
 }
 
+void SmiteAssertSmallerDouble(const SMITE_DOUBLE actual, 
+                              const SMITE_DOUBLE threshold, 
+                              const SMITE_UINT line)
+{
+    if (actual > threshold){
+        SMITE_REGISTER_ERROR(SMITE_INEQUALITY_ASSERTTION_ERROR, line); 
 
+        char errorDetails[100]; 
+        snprintf(errorDetails, 100, "%.10f not smaller than %.10f.", 
+                (double)actual, (double)threshold);
 
+        strcpy(SmiteCurrentTest->ErrorDetails, errorDetails);
+
+        TEST_FAIL_AND_ABORT();
+    }
+}
+
+void SmiteAssertSmallerDoubleArray(const double* actual,
+                                   const SMITE_DOUBLE threshold,
+                                   const SMITE_UINT elements,
+                                   const SMITE_UINT line)
+{
+    if (elements == 0){ // Nothing to Compare
+        return; 
+    }
+
+    for (int i = 0; i < elements; i++){
+
+        double actual_val = actual[i];
+
+        if (actual_val > threshold)
+        {
+            SMITE_REGISTER_ERROR(SMITE_EQUALITY_ASSERTION_ERROR, line);
+
+            char errorDetails[100]; 
+            snprintf(errorDetails, 100, SMITE_STR_ELEMENT "%d: %.10f not smaller than %.10f.", 
+                    i, actual_val, (double)threshold);
+
+            strcpy(SmiteCurrentTest->ErrorDetails, errorDetails);
+
+            TEST_FAIL_AND_ABORT();
+        }
+    }
+
+}
 
 /* SMITE utilities */
 #define SMITE_REPEAT_CHAR(x, y) do {for (int i = 0; i < y; i++){printf("%s", x);}} while(0)

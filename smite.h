@@ -189,7 +189,9 @@ typedef SMITE_FLOAT_TYPE SMITE_FLOAT;
 #define SMITE_STR_ELEMENT                   "Element "
 #define SMITE_STR_WAS                       "was "
 #define SMITE_STR_AT_LINE                   "at line "
+
 #define SMITE_EQUALITY_ASSERTION_ERROR      "Equality assertion error "
+#define SMITE_INEQUALITY_ASSERTTION_ERROR   "Inequality assertion error "
 
 #define SMITE_DEFAULT_NUMBER_STR_SIZE 20
 
@@ -198,7 +200,10 @@ Main SMITE structure to store each test information */
 
 typedef void (*SmiteTestFunction)(void); 
 
-#define SMITE_DOUBLE_TOLERANCE 1e-12
+#ifndef SMITE_DOUBLE_ATOL
+#define SMITE_DOUBLE_ATOL 1e-11
+#define SMITE_DOUBLE_RTOL 1e-10
+#endif 
 
 #define SMITE_DEFAULT_TEST_NUMBER (100)
 #define SMITE_DEFAULT_TEST_BATCH_EXPANSION_SIZE SMITE_DEFAULT_TEST_NUMBER
@@ -266,6 +271,10 @@ void SmiteAssertEqualDouble(const SMITE_DOUBLE expected,
                             const SMITE_DOUBLE actual, 
                             const SMITE_UINT line);
 
+void SmiteAssertNotEqualDouble(const SMITE_DOUBLE expected, 
+                               const SMITE_DOUBLE actual, 
+                               const SMITE_UINT line);
+
 void SmiteAssertEqualIntArray(const int* expected, 
                               const int* actual, 
                               const SMITE_UINT elements, 
@@ -277,6 +286,16 @@ void SmiteAssertEqualDoubleArray(const double* expected,
                                  const SMITE_UINT line);
 
 
+void SmiteAssertSmallerDouble(const SMITE_DOUBLE actual, 
+                              const SMITE_DOUBLE threshold, 
+                              const SMITE_UINT line);
+
+void SmiteAssertSmallerDoubleArray(const double* actual,
+                                   const SMITE_DOUBLE threshold,
+                                   const SMITE_UINT elements,
+                                   const SMITE_UINT line);
+
+
 /* SMITE macros to override the basic assert function */ 
 
 #define ASSERT_EQUAL_INT(expected, actual)                  SmiteAssertEqualInteger(expected, actual, __LINE__)
@@ -284,6 +303,10 @@ void SmiteAssertEqualDoubleArray(const double* expected,
 
 #define ASSERT_EQUAL_DOUBLE(expected, actual)                   SmiteAssertEqualDouble(expected, actual, __LINE__)
 #define ASSERT_EQUAL_DOUBLE_ARRAY(expected, actual, elements)   SmiteAssertEqualDoubleArray((const double*)expected, (const double*)actual, elements, __LINE__)
+#define ASSERT_NOT_EQUAL_DOUBLE(expected, actual)               SmiteAssertNotEqualDouble(expected, actual, __LINE__)
+
+#define ASSERT_SMALLER_THAN_DOUBLE(actual, threshold)                       SmiteAssertSmallerDouble(actual, threshold, __LINE__)
+#define ASSERT_SMALLER_THAN_DOUBLE_ARRAY(actual, threshold, elements)       SmiteAssertSmallerDoubleArray((const double*)actual, threshold, elements, __LINE__)
 
 // These series of variadic macros are supported only for versions of C >= C99
 #define ADD_TEST(...) ADD_TEST_AT_LINE(__VA_ARGS__, __LINE__, __FILE__)
