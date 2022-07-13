@@ -56,7 +56,7 @@ int SmiteRunSession()
     }
     printf("\n");
 
-    if (SmiteSession.Fails == 1) {   
+    if (SmiteSession.Fails >= 1) {   
         SmitePrintSessionFailure();
         SMITE_FREE_BATCH();
         return 1;
@@ -76,6 +76,7 @@ void SmiteAddSingleTest(SmiteTestFunction Fun,
     SmiteSession.TestBatch[SmiteSession.TestNumber].TestFile = FileName;
     SmiteSession.TestBatch[SmiteSession.TestNumber].TestName = FunName;
     SmiteSession.TestBatch[SmiteSession.TestNumber].TestLineNumber = LineNumber;
+    SmiteSession.TestBatch[SmiteSession.TestNumber].TestFailed = 0; 
     SmiteSession.TestNumber += 1;
 
     if (SmiteSession.TestNumber > SmiteSession.TestBatchCurrentSize){
